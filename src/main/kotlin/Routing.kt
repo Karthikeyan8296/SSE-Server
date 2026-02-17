@@ -18,6 +18,7 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.boolean
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
+import java.util.UUID
 
 fun Application.configureRouting() {
     install(SSE)
@@ -116,10 +117,23 @@ fun Application.configureRouting() {
 }
 
 fun generateListings(count: Int): List<Listing> {
-    return (1..count).map {
+    val titles = listOf(
+        "Premium Grocery Pack",
+        "Fresh Farm Vegetables",
+        "Daily Essentials Combo",
+        "Mega Discount Sale",
+        "Weekend Special Offer",
+        "Organic Fruits Basket",
+        "Limited Time Deal",
+        "Trending Now",
+        "Hot Picks for You",
+        "Exclusive Member Offer"
+    )
+
+    return List(count) {
         Listing(
-            id = "number $it",
-            title = "Listing Title value $it"
+            id = UUID.randomUUID().toString(),
+            title = titles.random()
         )
     }
 }
