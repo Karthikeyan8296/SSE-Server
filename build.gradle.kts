@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.kotlin.jvm)
     alias(libs.plugins.ktor)
+    kotlin("plugin.serialization") version "1.9.22"
 }
 
 group = "com.example"
@@ -26,5 +27,5 @@ dependencies {
 
     implementation("io.ktor:ktor-serialization-kotlinx-json")
     implementation("io.ktor:ktor-client-cio")
-
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.2")
 }

@@ -5,13 +5,19 @@ import io.ktor.client.engine.cio.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
+import io.ktor.serialization.kotlinx.json.json
 import io.ktor.server.application.*
+import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.sse.*
 import io.ktor.sse.*
 import io.ktor.utils.io.*
 import kotlinx.coroutines.delay
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.boolean
+import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.jsonPrimitive
 
 fun Application.configureRouting() {
     install(SSE)
@@ -61,15 +67,59 @@ fun Application.configureRouting() {
                 val channel = response.bodyAsChannel()
 
                 while (!channel.isClosedForRead) {
+
                     val line = channel.readUTF8Line() ?: continue
                     if (line.isBlank()) continue
 
-                    send(ServerSentEvent(data = line))
-                }
+                    val json = Json.parseToJsonElement(line).jsonObject
 
+                    val done = json["done"]?.jsonPrimitive?.boolean ?: false
+                    if (done) break
+
+                    val token = json["response"]?.jsonPrimitive?.content
+
+                    if (!token.isNullOrBlank()) {
+                        send(ServerSentEvent(data = token))
+                    }
+                }
             } catch (e: Exception) {
                 send(ServerSentEvent(data = "Error: ${e.message}"))
             }
         }
+    }
+    install(ContentNegotiation){
+        json()
+    }
+
+    routing {
+        get("/poll") {
+            val currentCount = PollState.increment()
+
+            val response = if (currentCount < 5){
+                PollResponse(
+                    message = "This is a reply",
+                    listing = generateListings(currentCount),
+                    status = "PENDING"
+                )
+            }else{
+                val completedResponse = PollResponse(
+                    message = "This is complete reply",
+                    listing = generateListings(currentCount),
+                    status = "COMPLETED"
+                )
+                PollState.reset()
+                completedResponse
+            }
+            call.respond(response)
+        }
+    }
+}
+
+fun generateListings(count: Int): List<Listing> {
+    return (1..count).map {
+        Listing(
+            id = "number $it",
+            title = "Listing Title value $it"
+        )
     }
 }
