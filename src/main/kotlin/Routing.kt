@@ -2,12 +2,12 @@ package com.example
 
 import io.ktor.client.*
 import io.ktor.client.engine.cio.*
-import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
-import io.ktor.serialization.kotlinx.json.json
+import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.application.*
+import io.ktor.server.plugins.contentnegotiation.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.sse.*
@@ -117,24 +117,22 @@ fun Application.configureRouting() {
 }
 
 
-fun generateListings(count: Int): List<Listing> {
-    val titles = listOf(
-        "Premium Grocery Pack",
-        "Fresh Farm Vegetables",
-        "Daily Essentials Combo",
-        "Mega Discount Sale",
-        "Weekend Special Offer",
-        "Organic Fruits Basket",
-        "Limited Time Deal",
-        "Trending Now",
-        "Hot Picks for You",
-        "Exclusive Member Offer"
-    )
+private val masterTitles = listOf(
+    "Premium Grocery Pack",
+    "Fresh Farm Vegetables",
+    "Daily Essentials Combo",
+    "Organic Fruits Basket",
+    "Trending Now",
+    "Exclusive Member Offer"
+)
 
-    return List(count) {
-        Listing(
-            id = UUID.randomUUID().toString(),
-            title = titles.random()
-        )
-    }
+fun generateListings(count: Int): List<Listing> {
+    return masterTitles
+        .take(count)
+        .map { title ->
+            Listing(
+                id = UUID.randomUUID().toString(),
+                title = title
+            )
+        }
 }
