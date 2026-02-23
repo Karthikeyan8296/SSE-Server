@@ -2,12 +2,12 @@ package com.example
 
 import io.ktor.client.*
 import io.ktor.client.engine.cio.*
+import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.json
 import io.ktor.server.application.*
-import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.sse.*
@@ -18,10 +18,15 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.boolean
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
-import java.util.UUID
+import java.util.*
+
 
 fun Application.configureRouting() {
     install(SSE)
+    install(ContentNegotiation) {
+        json()
+    }
+
     routing {
         get("/") {
             call.respondText("Hello World!")
@@ -87,24 +92,19 @@ fun Application.configureRouting() {
                 send(ServerSentEvent(data = "Error: ${e.message}"))
             }
         }
-    }
-    install(ContentNegotiation){
-        json()
-    }
 
-    routing {
         get("/poll") {
             val currentCount = PollState.increment()
 
-            val response = if (currentCount < 5){
+            val response = if (currentCount < 5) {
                 PollResponse(
                     message = "This is a reply",
                     listing = generateListings(currentCount),
                     status = "PENDING"
                 )
-            }else{
+            } else {
                 val completedResponse = PollResponse(
-                    message = "This is complete reply",
+                    message = "Reply Completed",
                     listing = generateListings(currentCount),
                     status = "COMPLETED"
                 )
@@ -115,6 +115,7 @@ fun Application.configureRouting() {
         }
     }
 }
+
 
 fun generateListings(count: Int): List<Listing> {
     val titles = listOf(

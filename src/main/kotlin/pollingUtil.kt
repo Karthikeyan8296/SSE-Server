@@ -1,4 +1,5 @@
 package com.example
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -26,4 +27,3 @@ object PollState {
         callCount = 0
     }
 }
-
