@@ -127,12 +127,23 @@ private val masterTitles = listOf(
 )
 
 fun generateListings(count: Int): List<Listing> {
-    return masterTitles
-        .take(count)
-        .map { title ->
-            Listing(
-                id = UUID.randomUUID().toString(),
-                title = title
-            )
-        }
+    val titles = listOf(
+        "Premium Grocery Pack",
+        "Fresh Farm Vegetables",
+        "Daily Essentials Combo",
+        "Mega Discount Sale",
+        "Weekend Special Offer",
+        "Organic Fruits Basket",
+        "Limited Time Deal",
+        "Trending Now",
+        "Hot Picks for You",
+        "Exclusive Member Offer"
+    )
+
+    return List(count) {
+        Listing(
+            id = UUID.randomUUID().toString(),
+            title = titles.random()
+        )
+    }
 }
